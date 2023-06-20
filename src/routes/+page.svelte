@@ -22,7 +22,7 @@
     }
     
     async function uploadImage(evt) {
-      evt.preventDefault()
+      // evt.preventDefault()
       isLoading = true
       const [fileName, fileUrl] = await uploadMedia(evt.target['file'].files[0]);
       
@@ -34,13 +34,14 @@
         description: evt.target['description'].value,
         created_at: Date('now'),
       }
+      let token = getTokenFromLocalStorage()
 
       const response = await fetch(PUBLIC_BACKEND_BASE_URL + '/images', {
         method: 'POST',
         mode: 'cors',
         headers: {
           'Content-Type': 'application/json',
-           Authorization: getTokenFromLocalStorage()
+          Authorization: `Bearer ${token}`
         },
         body: JSON.stringify(imageData)
       });
@@ -123,7 +124,7 @@
               </svg>
           </div>
           {/if}
-          <button class="btn rounded-xl btn-md btn-primary" disabled={isLoading}>Sign In</button>
+          <button class="btn rounded-xl btn-md btn-primary" disabled={isLoading}>Upload</button>
           </div>
       </form>
     </div>
