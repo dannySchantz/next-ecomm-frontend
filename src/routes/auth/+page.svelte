@@ -1,8 +1,17 @@
 <script>
     import { goto} from '$app/navigation'
     import { logInUser, loggedIn } from '../../utils/auth';
+    import { onMount } from 'svelte'
     let isLoading = false;
     let showAlert = false;
+
+    function checkLoggedIn() {
+      if ($loggedIn) {
+        goto('/');
+        alert('You are already logged-in, no need to sign-in :p')
+      }
+    }
+    onMount(checkLoggedIn)
 
     async function _logInUser(evt) {
         evt.preventDefault();
@@ -54,7 +63,6 @@
     </label>
     <input type="password" name="password" placeholder="" class="input input-bordered w-full" required />
     </div>
-
     <div class="form-control w-full mt-4">
     {#if isLoading}
     <div class ="flex justify-center shadow-l">

@@ -1,14 +1,32 @@
 <script>
-    import { PUBLIC_BACKEND_BASE_URL } from '$env/static/public';
+    import  { PUBLIC_BACKEND_BASE_URL }  from '$env/static/public';
     import { goto } from '$app/navigation';
     import { logInUser, loggedIn } from './../../../utils/auth.js';
-  
+    import { writable } from 'svelte/store';
+	  import { onMount } from 'svelte';
+
+
     let formErrors = {};
     let isLoading = false;
-    function postSignUp() {
-      goto('/');
+    let showAlert = writable(false);
+    export let currentUserId = ''
+
+    onMount(setShowAlertFalse)
+    onMount(checkLoggedIn)
+
+    function goToHomePage() {
+        goto('/')
     }
-    
+    function checkLoggedIn() {
+      if ($loggedIn && !$showAlert) {
+        goto('/');
+        alert('You are already logged-in, no need to signup :p')
+      }
+    }
+    function setShowAlertFalse() {
+        showAlert.set(false)
+    }
+
 
     async function createUser(evt) {
       evt.preventDefault()
@@ -36,11 +54,12 @@
       
       if (resp.status == 200) {
         const res = await logInUser(userData.email, userData.password);
-        
+        currentUserId = resp.id
         if (res.success) {
           isLoading = false
           loggedIn.set(true)
-          postSignUp();
+          showAlert.set(true)
+        //   postSignUp();
         } else {
           isLoading = false
           loggedIn.set(false)
@@ -58,9 +77,19 @@
     <p class="justify-left">Please sign up first.</p>
   </div> -->
     <!-- {/if} -->
+{#if $showAlert}
+<div class="justify-center grid grid-cols-1 grid-rows-2">
+  <div class="alert alert-success mx-4 max-h-20 rounded-xl mt-4 w-auto row-span-1 flex flex-col items-center">
+    <span><strong>Thank you for signing up!</strong></span>
+    <span class="font-extralight ">Please check your email for confirmation.</span>
+  </div>
+
+<button  on:click={goToHomePage} class="btn w-1/3 flex justify-self-center h-20 mx-4 rounded-xl mt-[10%] row-span-1">Click here to return to home</button>
+</div>
+{:else}
     <h1 class="text-center text-xl mt-20 text-primary">Please create your account.</h1>
     <div class="text-center">
-      <a class="link-hover italic text-xs text-primary" href="/users/login">Already have an account? Click here to login instead.</a>
+      <a class="link-hover italic text-xs text-primary" href="/auth">Already have an account? Click here to login instead.</a>
     </div>
     <div class="flex justify-center items-center text-primary">
       <form on:submit={createUser} class="w-full m-12">
@@ -76,11 +105,11 @@
             <span class="label-text text-primary">Email</span>
           </label>
           <input type="email" name="email" placeholder="john@example.com" class="input input-bordered w-full" required />
-          <!-- {#if 'email' in formErrors}
+          {#if 'email' in formErrors}
           <label class="label" for="email">
             <span class="label-text-alt text-red-500">{formErrors['email'].message}</span>
           </label>
-          {/if} -->
+          {/if}
         </div>
         
         <div class="form-control w-full">
@@ -120,4 +149,5 @@
       <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
       <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
     </div>
+{/if}
     
