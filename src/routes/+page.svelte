@@ -1,28 +1,62 @@
 
 <script>
-	  import { get_root_for_style, identity } from 'svelte/internal';
-    // import humanize from 'humanize-plus';
-    // export let data;
     import { PUBLIC_BACKEND_BASE_URL } from '$env/static/public';
-    import { loggedIn, getTokenFromLocalStorage, getUserId} from '../utils/auth.js';
-    import { onMount, afterUpdate } from 'svelte';
+    import { loggedIn, getTokenFromLocalStorage} from '../utils/auth.js';
+    import { onMount} from 'svelte';
     import { writable } from 'svelte/store';
     import { uploadMedia } from '../utils/s3-uploader.js'
-    let isLoading = false
-    let popUp = writable(false)
-    onMount(popUp.set(false))
 
+    let isLoading = false;
+    let uploadImagePopUp = writable(false);
+    let buyImagePopUp = writable(false)
+    let images = [];
     let formErrors = {};
 
+    onMount(uploadImagePopUp.set(false));
+    onMount(buyImagePopUp.set(false));
+    onMount(fetchImages())
+  
+
     function openModal() {
-        popUp.set(true)
+        uploadImagePopUp.set(true)
     }
     function closeModal() {
-        popUp.set(false)
+        uploadImagePopUp.set(false)
     }
     
     async function uploadImage(evt) {
-      // evt.preventDefault()
+      evt.preventDefault()
+      formErrors = {
+        price: '',
+        title: '',
+        description: '',
+      }; // Clear previous form errors
+
+      if (!evt.target['file'].files[0]) {
+        formErrors['file'] = 'Please select a file.';
+      }
+
+      if (!evt.target['price'].value) {
+        formErrors.price = 'Please enter a price.';
+      } else {
+        formErrors.price = '';
+      }
+
+      if (!evt.target['title'].value) {
+        formErrors.title = 'Please enter a title.';
+      } else {
+        formErrors.title = '';
+      }
+
+      if (!evt.target['description'].value) {
+        formErrors.description = 'Please enter a description.';
+      } else {
+        formErrors.description = '';
+      }
+
+      if (Object.keys(formErrors).length > 0) {
+        return; // Exit the function if there are form errors
+      }
       isLoading = true
       const [fileName, fileUrl] = await uploadMedia(evt.target['file'].files[0]);
       
@@ -32,7 +66,7 @@
         price: evt.target['price'].value,
         title: evt.target['title'].value,
         description: evt.target['description'].value,
-        created_at: Date('now'),
+        created_at: new Date(),
       }
       let token = getTokenFromLocalStorage()
 
@@ -41,22 +75,44 @@
         mode: 'cors',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(imageData)
       });
 
       if (response.status == 200) {
         console.log('Photo creation success!')
+        uploadImagePopUp.set(false)
         isLoading = false
+        location.reload()
       } else {
         console.log('Failed to create image.')
         isLoading = false 
       }
     }
+    async function fetchImages() {
+      // let token = getTokenFromLocalStorage()
+
+      const response = await fetch(PUBLIC_BACKEND_BASE_URL + '/images', {
+        method: 'GET',
+        mode: 'cors',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      });
+
+      if (response.status == 200) {
+        images = await response.json();
+        console.log('Images found.');
+
+      } else {
+        console.log('Failed to get images.');
+      }
+    }
 
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape') {
+            formErrors = {}
             closeModal();
         }
     });
@@ -64,11 +120,11 @@
 
   document.addEventListener('click', (event) => {
     if (document.querySelector('.modal-box') && !document.querySelector('.modal-box').contains(event.target) && !event.target.closest('.btn-ghost')) {
+        formErrors = {}
         closeModal();
     }
   });
     
-    // popUp.set(true)
   </script>
   <svelte:head>
     <script src="/aws-sdk-s3.min.js"></script>
@@ -81,11 +137,11 @@
     }
   </style>
 
-  {#if $popUp}
+  {#if $uploadImagePopUp}
   <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity z-10">
   <div for="upload-image-modal" class="z-10 fixed rounded-xl flex justify-center w-full">
     <div class="modal-box w-full bg-white rounded-xl transform transition-opacity  duration-300">
-      <form on:submit|preventDefault={uploadImage} class="w-full">
+      <form on:submit={uploadImage} class="w-full">
         <div class="flex flex-col lg:flex-row">
           <div class="form-control  w-full mt-2">
             <input class="file-input max-w-xs rounded-xl shadow-lg shadow-gray-300" type="file" name="file" />
@@ -102,18 +158,33 @@
             <span class="label-text">Price</span>
           </label>
           <input type="text" name="price" placeholder="99.99" class="input input-bordered w-full rounded-xl">
+            {#if 'price' in formErrors}
+              <label class="label" for="file">
+                <span class="label-text-alt text-red-500">{formErrors['price']}</span>
+              </label>
+            {/if}
         </div>
         <div class="form-control w-full">
           <label class="label" for="title">
             <span class="label-text">Title</span>
           </label>
           <input type="text" name="title" placeholder="Beautiful Mountains" class="input input-bordered w-full rounded-xl">
+          {#if 'title' in formErrors}
+              <label class="label" for="title">
+                <span class="label-text-alt text-red-500">{formErrors['title']}</span>
+              </label>
+          {/if}
         </div>
         <div class="form-control w-full">
           <label class="label" for="description">
             <span class="label-text">Description</span>
           </label>
           <textarea name="description" class="textarea textarea-bordered rounded-xl" placeholder="Mountains are awesome"></textarea>
+          {#if 'description' in formErrors}
+              <label class="label" for="description">
+                <span class="label-text-alt text-red-500">{formErrors['description']}</span>
+              </label>
+          {/if}
         </div>
         <div class="form-control w-full mt-4">
           {#if isLoading}
@@ -142,25 +213,26 @@
         </button>
     </div>
     {/if}
-    <!-- {#each data.images as image} -->
-    <div class="grid grid-rows-1 lg:grid-cols-3 gap-4 rounded-xl">
+    {#each images as image}
+    <div class="grid grid-rows-1 grid-flow-col  gap-4 rounded-xl m-4">
       <div class="card bg-base-100 shadow-xl rounded-xl">
         <figure class="h-60">
-          <img src="https://next-ecomm-danny123.s3.amazonaws.com/img-9777.jpeg" alt="Shoes">
+          <img src={image.file} alt={image.name}>
         </figure>
         <div class="card-body">
-          <h2 class="card-title">Mountains
+          <h2 class="card-title">
+            {image.title}
             <div class="badge badge-secondary">NEW</div>
           </h2>
-          <p>Mountains</p>
+          <p>{image.description}</p>
           <div class="card-actions items-end justify-end">
-            <h3 class="text-xl font-thin mr-4">USD 99.96</h3>
-            <button data-price="9996" data-id="1" class="btn" control-id="ControlID-48">Buy Now</button>
+            <h3 class="text-xl font-thin mr-4">USD {image.price}</h3>
+            <button data-price={image.price} data-id={image.id} class="btn rounded-xl" control-id="ControlID-48">Buy Now</button>
           </div>
         </div>
       </div>
     </div>
-    <!-- {/each} -->
+    {/each}
   </div>
   
   

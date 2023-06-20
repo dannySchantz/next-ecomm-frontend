@@ -9,7 +9,6 @@
     let formErrors = {};
     let isLoading = false;
     let showAlert = writable(false);
-    export let currentUserId = ''
 
     onMount(setShowAlertFalse)
     onMount(checkLoggedIn)
@@ -66,6 +65,7 @@
           throw 'Sign up succeeded but authentication failed';
         }
       } else {
+        isLoading = false
         const res = await resp.json();
         formErrors = res.data;
       }

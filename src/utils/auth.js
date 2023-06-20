@@ -6,7 +6,6 @@ const emptyAuth = {
   // 'userId': ''
 };
 
-export let currentUserId = ''
 
 export function logOut() {
   localStorage.setItem('auth', JSON.stringify(emptyAuth));
@@ -16,22 +15,6 @@ export function logOut() {
 
 export const loggedIn = writable(false);
 
-// export async function getUserId() {
-//   const response = await fetch(PUBLIC_BACKEND_BASE_URL + '/users', {
-//     method: 'GET',
-//     mode: 'cors',
-//     headers: {
-//       'Content-Type': 'application/json',
-//        Authorization: getTokenFromLocalStorage()
-//     },
-//   });
-
-//   if (response.status == 200) {
-//     console.log('Photo creation success!')
-//   } else {
-//     console.log('Failed to create photo.')
-//   }
-// }
 
 export function getTokenFromLocalStorage() {
   const auth = localStorage.getItem('auth');
@@ -41,12 +24,7 @@ export function getTokenFromLocalStorage() {
   return null;
 }
 
-export function getUserId() {
-  const auth = localStorage.getItem('auth');
-  if (auth) {
-    return JSON.parse(auth)["userId"]
-  }
-}
+
 
 export async function isLoggedIn() {
   if (!getTokenFromLocalStorage()) {
@@ -97,7 +75,6 @@ export async function logInUser(email, password) {
     }
   );
   const res = await resp.json();
-  console.log(res)
 
   if (resp.status === 200) {
     localStorage.setItem(

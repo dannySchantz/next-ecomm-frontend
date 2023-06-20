@@ -4,7 +4,7 @@
     import { onMount } from 'svelte'
     let isLoading = false;
     let showAlert = false;
-
+    let formErrors = {}
     function checkLoggedIn() {
       if ($loggedIn) {
         goto('/');
@@ -50,19 +50,26 @@
 </div>
 <div class="flex justify-center items-center">
 <form on:submit={_logInUser} class="w-full m-12">
-    <div class="form-control w-full">
+  <div class="form-control w-full">
     <label class="label" for="username">
-        <span class="label-text text-primary">Email</span>
+      <span class="label-text text-primary">Email</span>
     </label>
     <input type="text" name="email" placeholder="a@a.com" class="input input-bordered w-full" />
-    </div>
-
-    <div class="form-control w-full">
+    {#if formErrors.email}
+      <p class="text-red-500">{formErrors.email}</p>
+    {/if}
+  </div>
+  
+  <div class="form-control w-full">
     <label class="label" for="password">
-        <span class="label-text text-primary">Password</span>
+      <span class="label-text text-primary">Password</span>
     </label>
     <input type="password" name="password" placeholder="" class="input input-bordered w-full" required />
-    </div>
+    {#if formErrors.password}
+      <p class="text-red-500">{formErrors.password}</p>
+    {/if}
+  </div>
+  
     <div class="form-control w-full mt-4">
     {#if isLoading}
     <div class ="flex justify-center shadow-l">
