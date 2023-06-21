@@ -9,7 +9,7 @@
       if ($loggedIn) {
         goto('/');
         alert('You are already logged-in, no need to sign-in :p')
-      }
+      }3
     }
     onMount(checkLoggedIn)
 

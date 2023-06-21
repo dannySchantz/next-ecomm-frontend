@@ -159,7 +159,7 @@
           </label>
           <input type="text" name="price" placeholder="99.99" class="input input-bordered w-full rounded-xl">
             {#if 'price' in formErrors}
-              <label class="label" for="file">
+              <label class="label" for="price">
                 <span class="label-text-alt text-red-500">{formErrors['price']}</span>
               </label>
             {/if}
@@ -228,6 +228,9 @@
           <div class="card-actions items-end justify-end">
             <h3 class="text-xl font-thin mr-4">USD {image.price}</h3>
             <button data-price={image.price} data-id={image.id} class="btn rounded-xl" control-id="ControlID-48">Buy Now</button>
+            <!-- <form action="/create-checkout-session" method="POST">
+              <button data-price={image.price} data-id={image.id} class="btn rounded-xl" control-id="ControlID-48" type="submit">Buy Now</button>
+            </form> -->
           </div>
         </div>
       </div>
