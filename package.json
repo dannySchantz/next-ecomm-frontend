@@ -27,8 +27,10 @@
 	"type": "module",
 	"dependencies": {
 		"@sendgrid/mail": "^7.7.0",
+		"@stripe/stripe-js": "^1.54.1",
 		"@tailwindcss/typography": "^0.5.9",
 		"humanize-plus": "^1.8.2",
+		"next": "^13.4.7",
 		"sendgrid": "^5.2.3",
 		"stores": "^1.0.0",
 		"stripe": "^12.9.0"

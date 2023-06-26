@@ -1,5 +1,6 @@
 export const ssr = false;
-import { isLoggedIn } from '../utils/auth';
+import { isLoggedIn, loggedIn} from '../utils/auth';
 export async function load() {
     await isLoggedIn()
 }
+

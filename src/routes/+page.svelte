@@ -1,28 +1,51 @@
 
 <script>
-    import { PUBLIC_BACKEND_BASE_URL } from '$env/static/public';
+    import { PUBLIC_BACKEND_BASE_URL} from '$env/static/public';
+    import { PUBLIC_STRIPE_API_KEY } from '$env/static/public';
     import { loggedIn, getTokenFromLocalStorage} from '../utils/auth.js';
-    import { onMount} from 'svelte';
+    // import { onMount } from 'svelte';
     import { writable } from 'svelte/store';
     import { uploadMedia } from '../utils/s3-uploader.js'
+    export let data;
 
     let isLoading = false;
     let uploadImagePopUp = writable(false);
     let buyImagePopUp = writable(false)
-    let images = [];
     let formErrors = {};
-
-    onMount(uploadImagePopUp.set(false));
-    onMount(buyImagePopUp.set(false));
-    onMount(fetchImages())
   
-
     function openModal() {
         uploadImagePopUp.set(true)
     }
     function closeModal() {
         uploadImagePopUp.set(false)
     }
+
+    async function openStripeCheckout(evt) {
+      evt.preventDefault()
+
+      const price = evt.target.dataset.price;
+      const title = evt.target.dataset.title;
+        buyImagePopUp.set(true)
+        const imageData = {
+          title: title,
+          price: price,
+        }
+        const resp = await fetch(PUBLIC_BACKEND_BASE_URL + '/create-checkout-session', {
+        method: 'POST',
+        mode: 'cors',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(imageData)
+        });
+        if (resp.status == 200) {
+          const res = await resp.json()
+          window.location.replace(res)
+        } else {
+          alert('Failed to continue to checkout.')
+        }
+    }
+
     
     async function uploadImage(evt) {
       evt.preventDefault()
@@ -88,25 +111,6 @@
       } else {
         console.log('Failed to create image.')
         isLoading = false 
-      }
-    }
-    async function fetchImages() {
-      // let token = getTokenFromLocalStorage()
-
-      const response = await fetch(PUBLIC_BACKEND_BASE_URL + '/images', {
-        method: 'GET',
-        mode: 'cors',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-      });
-
-      if (response.status == 200) {
-        images = await response.json();
-        console.log('Images found.');
-
-      } else {
-        console.log('Failed to get images.');
       }
     }
 
@@ -213,8 +217,8 @@
         </button>
     </div>
     {/if}
-    {#each images as image}
-    <div class="grid grid-rows-1 grid-flow-col  gap-4 rounded-xl m-4">
+    {#each data.images as image}
+    <div class="grid grid-rows-1 grid-flow-col  gap-4 rounded-xl mt-4">
       <div class="card bg-base-100 shadow-xl rounded-xl">
         <figure class="h-60">
           <img src={image.file} alt={image.name}>
@@ -227,10 +231,14 @@
           <p>{image.description}</p>
           <div class="card-actions items-end justify-end">
             <h3 class="text-xl font-thin mr-4">USD {image.price}</h3>
-            <button data-price={image.price} data-id={image.id} class="btn rounded-xl" control-id="ControlID-48">Buy Now</button>
-            <!-- <form action="/create-checkout-session" method="POST">
-              <button data-price={image.price} data-id={image.id} class="btn rounded-xl" control-id="ControlID-48" type="submit">Buy Now</button>
-            </form> -->
+            <!-- <button on:click = {openBuyImage} data-price={image.price} data-id={image.id} class="btn rounded-xl" control-id="ControlID-48">Buy Now</button> -->
+            <button on:click={openStripeCheckout} data-price={image.price} data-title={image.title} for="openBuyImage" class="btn btn-ghost gap-2 rounded-xl">
+              Buy Now
+          </button>
+              <!-- <button data-price={image.price} data-id={image.id} class="btn rounded-xl" control-id="ControlID-48" type="submit">Buy Now</button> -->
+              <!-- <form action="/create-checkout-session" method="POST">
+                <button data-price={image.price} data-id={image.id} class="btn rounded-xl" type="submit">Checkout</button>
+              </form> -->
           </div>
         </div>
       </div>

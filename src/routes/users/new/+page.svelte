@@ -5,23 +5,24 @@
     import { writable } from 'svelte/store';
 	  import { onMount } from 'svelte';
 
-
     let formErrors = {};
     let isLoading = false;
     let showAlert = writable(false);
 
-    onMount(setShowAlertFalse)
-    onMount(checkLoggedIn)
+    // onMount(setShowAlertFalse )
+    checkLoggedIn()
+
+    function checkLoggedIn() {
+        if ($loggedIn && !$showAlert) {
+        goto('/');
+        alert('You are already logged-in, no need to signup :p')
+    }
+}
 
     function goToHomePage() {
         goto('/')
     }
-    function checkLoggedIn() {
-      if ($loggedIn && !$showAlert) {
-        goto('/');
-        alert('You are already logged-in, no need to signup :p')
-      }
-    }
+
     function setShowAlertFalse() {
         showAlert.set(false)
     }
@@ -53,7 +54,6 @@
       
       if (resp.status == 200) {
         const res = await logInUser(userData.email, userData.password);
-        currentUserId = resp.id
         if (res.success) {
           isLoading = false
           loggedIn.set(true)
@@ -146,8 +146,6 @@
         {/if}
         <button class="btn btn-md btn-primary w-full mt-4 rounded-xl" disabled={isLoading}>Create An Account</button>
     </form>
-      <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-      <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
     </div>
 {/if}
     

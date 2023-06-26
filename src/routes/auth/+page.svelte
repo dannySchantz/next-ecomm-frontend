@@ -5,11 +5,12 @@
     let isLoading = false;
     let showAlert = false;
     let formErrors = {}
+    
     function checkLoggedIn() {
       if ($loggedIn) {
         goto('/');
         alert('You are already logged-in, no need to sign-in :p')
-      }3
+      }
     }
     onMount(checkLoggedIn)
 

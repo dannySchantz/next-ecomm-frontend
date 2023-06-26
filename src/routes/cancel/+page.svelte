@@ -1,0 +1,1 @@
+<h1>Failed to buy image.</h1>

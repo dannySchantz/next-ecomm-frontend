@@ -95,3 +95,4 @@ export async function logInUser(email, password) {
     res: res
   };
 }
+
