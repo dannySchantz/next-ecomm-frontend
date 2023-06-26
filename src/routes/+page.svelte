@@ -55,31 +55,31 @@
         description: '',
       }; // Clear previous form errors
 
-      if (!evt.target['file'].files[0]) {
-        formErrors['file'] = 'Please select a file.';
-      }
+    //   if (!evt.target['file'].files[0]) {
+    //     formErrors['file'] = 'Please select a file.';
+    //   }
 
-      if (!evt.target['price'].value) {
-        formErrors.price = 'Please enter a price.';
-      } else {
-        formErrors.price = '';
-      }
+    //   if (!evt.target['price'].value) {
+    //     formErrors.price = 'Please enter a price.';
+    //   } else {
+    //     formErrors.price = '';
+    //   }
 
-      if (!evt.target['title'].value) {
-        formErrors.title = 'Please enter a title.';
-      } else {
-        formErrors.title = '';
-      }
+    //   if (!evt.target['title'].value) {
+    //     formErrors.title = 'Please enter a title.';
+    //   } else {
+    //     formErrors.title = '';
+    //   }
 
-      if (!evt.target['description'].value) {
-        formErrors.description = 'Please enter a description.';
-      } else {
-        formErrors.description = '';
-      }
+    //   if (!evt.target['description'].value) {
+    //     formErrors.description = 'Please enter a description.';
+    //   } else {
+    //     formErrors.description = '';
+    //   }
 
-      if (Object.keys(formErrors).length > 0) {
-        return; // Exit the function if there are form errors
-      }
+    //   if (Object.keys(formErrors).length > 0) {
+    //     return; // Exit the function if there are form errors
+    //   }
       isLoading = true
       const [fileName, fileUrl] = await uploadMedia(evt.target['file'].files[0]);
       
