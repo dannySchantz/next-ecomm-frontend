@@ -21,15 +21,18 @@
     }
 
     async function openStripeCheckout(evt) {
-      evt.preventDefault()
+        evt.preventDefault()
 
-      const price = evt.target.dataset.price;
-      const title = evt.target.dataset.title;
+        const price = evt.target.dataset.price;
+        const title = evt.target.dataset.title;
+
         buyImagePopUp.set(true)
+
         const imageData = {
           title: title,
           price: price,
         }
+
         const resp = await fetch(PUBLIC_BACKEND_BASE_URL + '/create-checkout-session', {
         method: 'POST',
         mode: 'cors',
@@ -55,31 +58,27 @@
         description: '',
       }; // Clear previous form errors
 
-    //   if (!evt.target['file'].files[0]) {
-    //     formErrors['file'] = 'Please select a file.';
-    //   }
+      if (!evt.target['file'].files[0]) {
+        formErrors['file'] = 'Please select a file.';
+      }
 
-    //   if (!evt.target['price'].value) {
-    //     formErrors.price = 'Please enter a price.';
-    //   } else {
-    //     formErrors.price = '';
-    //   }
+      if (!evt.target['price'].value) {
+        formErrors.price = 'Please enter a price.';
+      } else {
+        formErrors.price = '';
+      }
 
-    //   if (!evt.target['title'].value) {
-    //     formErrors.title = 'Please enter a title.';
-    //   } else {
-    //     formErrors.title = '';
-    //   }
+      if (!evt.target['title'].value) {
+        formErrors.title = 'Please enter a title.';
+      } else {
+        formErrors.title = '';
+      }
 
-    //   if (!evt.target['description'].value) {
-    //     formErrors.description = 'Please enter a description.';
-    //   } else {
-    //     formErrors.description = '';
-    //   }
-
-    //   if (Object.keys(formErrors).length > 0) {
-    //     return; // Exit the function if there are form errors
-    //   }
+      if (!evt.target['description'].value) {
+        formErrors.description = 'Please enter a description.';
+      } else {
+        formErrors.description = '';
+      }
       isLoading = true
       const [fileName, fileUrl] = await uploadMedia(evt.target['file'].files[0]);
       
